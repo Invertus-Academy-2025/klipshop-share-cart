@@ -1,0 +1,10 @@
+.share{
+    margin-top: 10px;
+    background-color: #28a745;
+}
+
+#share-svg{
+    float: left;
+    width: 16px;
+    height: 20px;
+}

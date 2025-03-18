@@ -15,17 +15,26 @@ class KlipShop extends Module
         $this->need_instance = 0;
         $this->bootstrap = true;
 
+        parent::__construct();
+
 
         $this->description = $this->trans('Sharing cart module created by Dainius, Vilius and Linas', [], 'Modules.KlipShop.Admin');
     }
 
     public function install()
     {
-        return parent::install();
+        return parent::install()
+        && $this->registerHook('displayExpressCheckout');
     }
 
     public function uninstall()
     {
-        return parent::uninstall();
+        return parent::uninstall()
+        && $this->unregisterHook('displayExpressCheckout');
+    }
+
+    public function hookDisplayExpressCheckout($params)
+    {
+        return $this->display(__FILE__, 'views/templates/cart.tpl');
     }
 }
