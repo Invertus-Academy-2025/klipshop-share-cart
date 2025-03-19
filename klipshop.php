@@ -35,6 +35,12 @@ class KlipShop extends Module
 
     public function hookDisplayExpressCheckout($params)
     {
+        $cart = $this->context->cart;
+        $cartId = (int)$cart->id;
+        $shareLink = $this->context->link->getModuleLink('klipshop', 'cart',
+        ['id_cart' => $cartId]);
+        $this->context->smarty->assign('share_link', $shareLink);
+
         return $this->display(__FILE__, 'views/templates/cart.tpl');
     }
 }

@@ -5,24 +5,18 @@ class KlipShopCartModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         parent::initContent();
-        $cart = $this->context->cart;
 
-        $productIds = [];
+        $id_cart = Tools::getValue('id_cart');
+        if ($id_cart) {
+            $cart = new Cart((int)$id_cart);
 
-        if ($cart && $cart->id) {
-            $products = $cart->getProducts();
-            foreach ($products as $product) {
-                $productIds[] = [
-                    'id' => $product['id_product'],
-                    'name' => $product['name'],
-                ];
+            if (Validate::isLoadedObject($cart)) {
+                $this->context->cookie->__set('id_cart', $cart->id);
+                Tools::redirect('index.php?controller=cart&action=show');
+            } else {
+                $this->errors[] = $this->module->l('Invalid cart ID.');
             }
         }
-
-        $this->context->smarty->assign([
-            'products' => $productIds,
-        ]);
-        $this->setTemplate('module:klipshop/views/templates/data.tpl');
     }
 
 }
