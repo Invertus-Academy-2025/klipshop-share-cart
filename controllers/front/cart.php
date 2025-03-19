@@ -19,8 +19,10 @@ class KlipShopCartModuleFrontController extends ModuleFrontController
             }
         }
 
-        echo json_encode($productIds);
-        exit;
+        $this->context->smarty->assign([
+            'products' => $productIds,
+        ]);
+        $this->setTemplate('module:klipshop/views/templates/data.tpl');
     }
 
 }
