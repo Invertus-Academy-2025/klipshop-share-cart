@@ -61,7 +61,11 @@ class KlipShop extends Module
             $token = $existingToken;
         }
 
-        $link = $this->context->link->getModuleLink('klipshop', 'load', ['token' => $token]);
+        Db::getInstance()->execute(
+            'DELETE FROM '._DB_PREFIX_.'sharecart_links WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)'
+        );
+
+        $link = $this->context->link->getModuleLink('klipshop', 'cart', ['token' => $token]);
         $this->context->smarty->assign('share_cart_link', $link);
 
         return $this->display(__FILE__, 'views/templates/cart.tpl');
