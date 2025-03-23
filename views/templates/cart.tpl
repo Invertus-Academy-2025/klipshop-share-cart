@@ -24,6 +24,7 @@
             input.value = "{$share_cart_link nofilter}";
             input.setAttribute('class', 'form-control');
             input.setAttribute('style', 'margin-top: 10px')
+            input.setAttribute('readonly', 'true');
             const wrap = document.querySelector('#wrap');
             wrap.appendChild(input);
             wrap.appendChild(btn);
