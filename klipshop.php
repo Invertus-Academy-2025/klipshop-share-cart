@@ -45,11 +45,14 @@ class KlipShop extends Module
 
     public function hookDisplayExpressCheckout($params)
     {
+        // Paimam esamo krepselio id
         $cartId = (int) $this->context->cart->id;
 
+        // tikrinam ar sis krepselis turi tokena dalinimuisi
         $existingToken = Db::getInstance()->getValue(
             'SELECT token FROM '._DB_PREFIX_.'sharecart_links WHERE cart_id = '.$cartId
         );
+
 
         if (!$existingToken) {
             $token = Tools::passwdGen(15);
@@ -65,6 +68,7 @@ class KlipShop extends Module
             'DELETE FROM '._DB_PREFIX_.'sharecart_links WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)'
         );
 
+        // priskiriam linka templeitui
         $link = $this->context->link->getModuleLink('klipshop', 'cart', ['token' => $token]);
         $this->context->smarty->assign('share_cart_link', $link);
 
