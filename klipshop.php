@@ -23,24 +23,48 @@ class KlipShop extends Module
 
     public function install()
     {
+        $sql = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'sharecart_links` (
+        `id_sharecart` INT AUTO_INCREMENT PRIMARY KEY,
+        `cart_id` INT NOT NULL,
+        `token` VARCHAR(32) NOT NULL,
+        `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
+
         return parent::install()
-        && $this->registerHook('displayExpressCheckout');
+            && Db::getInstance()->execute($sql)
+            && $this->registerHook('displayExpressCheckout');
     }
+
 
     public function uninstall()
     {
         return parent::uninstall()
-        && $this->unregisterHook('displayExpressCheckout');
+            && $this->unregisterHook('displayExpressCheckout')
+            && Db::getInstance()->execute('DROP TABLE `'._DB_PREFIX_.'sharecart_links`');
     }
 
     public function hookDisplayExpressCheckout($params)
     {
-        $cart = $this->context->cart;
-        $cartId = (int)$cart->id;
-        $shareLink = $this->context->link->getModuleLink('klipshop', 'cart',
-        ['id_cart' => $cartId]);
-        $this->context->smarty->assign('share_link', $shareLink);
+        $cartId = (int) $this->context->cart->id;
+
+        $existingToken = Db::getInstance()->getValue(
+            'SELECT token FROM '._DB_PREFIX_.'sharecart_links WHERE cart_id = '.$cartId
+        );
+
+        if (!$existingToken) {
+            $token = Tools::passwdGen(15);
+            Db::getInstance()->insert('sharecart_links', [
+                'cart_id' => $cartId,
+                'token' => pSQL($token),
+            ]);
+        } else {
+            $token = $existingToken;
+        }
+
+        $link = $this->context->link->getModuleLink('klipshop', 'load', ['token' => $token]);
+        $this->context->smarty->assign('share_cart_link', $link);
 
         return $this->display(__FILE__, 'views/templates/cart.tpl');
     }
+
 }
