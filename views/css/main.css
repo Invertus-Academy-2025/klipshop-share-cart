@@ -8,3 +8,11 @@
     width: 16px;
     height: 20px;
 }
+
+textarea{
+    margin-top: 10px;
+}
+
+.btn btn-primary share {
+    background-color: #ffc107;
+}
