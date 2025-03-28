@@ -33,7 +33,8 @@ class KlipShop extends Module
         return parent::install()
             && Db::getInstance()->execute($sql)
             && $this->registerHook('displayExpressCheckout')
-            && $this->registerHook('actionFrontControllerSetMedia');
+            && $this->registerHook('actionFrontControllerSetMedia')
+            && $this->registerHook('displayHeader');
     }
 
 
@@ -42,7 +43,8 @@ class KlipShop extends Module
         return parent::uninstall()
             && $this->unregisterHook('displayExpressCheckout')
             && Db::getInstance()->execute('DROP TABLE `'._DB_PREFIX_.'sharecart_links`')
-            && $this->unregisterHook('actionFrontControllerSetMedia');
+            && $this->unregisterHook('actionFrontControllerSetMedia')
+            && $this->unregisterHook('displayHeader');
     }
 
     public function hookDisplayExpressCheckout($params)
@@ -78,6 +80,15 @@ class KlipShop extends Module
         return $this->display(__FILE__, 'views/templates/cart.tpl');
     }
 
+    public function hookDisplayHeader($params)
+    {
+        if (Tools::getValue('cart_error')) {
+
+            $error_msg = 'Cart not found or expired.';
+            $this->context->smarty->assign('error', $error_msg);
+        }
+        return $this->display(__FILE__, 'views/templates/error.tpl');
+    }
     public function hookActionFrontControllerSetMedia(array $params)
     {
         $this->context->controller->addCss($this->getPathUri() . 'views/css/main.css');

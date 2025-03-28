@@ -2,6 +2,7 @@ const generate = document.querySelector('#url');
 const input = document.querySelector('#url-placeholder');
 const btn = document.querySelector('#copy');
 const img = document.querySelector('#check');
+
 input.setAttribute("style", "display:none");
 btn.setAttribute("style", "display:none");
 img.setAttribute("style", "display:none");
