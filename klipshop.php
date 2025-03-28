@@ -81,7 +81,6 @@ class KlipShop extends Module
     public function hookActionFrontControllerSetMedia(array $params)
     {
         $this->context->controller->addCss($this->getPathUri() . 'views/css/main.css');
-
         $this->context->controller->addJs($this->getPathUri() . 'views/js/main.js');
     }
 
