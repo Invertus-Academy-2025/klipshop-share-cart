@@ -11,7 +11,7 @@ class KlipshopCartModuleFrontController extends ModuleFrontController
         );
 
         if (!$original_cart_id) {
-            die('Expired cart link');
+            Tools::redirect($this->context->link->getPageLink('index', null, null, ['cart_error' => 1]));
         }
 
         $original_cart = new Cart((int) $original_cart_id);

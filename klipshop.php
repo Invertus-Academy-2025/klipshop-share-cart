@@ -32,7 +32,9 @@ class KlipShop extends Module
 
         return parent::install()
             && Db::getInstance()->execute($sql)
-            && $this->registerHook('displayExpressCheckout');
+            && $this->registerHook('displayExpressCheckout')
+            && $this->registerHook('actionFrontControllerSetMedia')
+            && $this->registerHook('displayHeader');
     }
 
 
@@ -40,11 +42,17 @@ class KlipShop extends Module
     {
         return parent::uninstall()
             && $this->unregisterHook('displayExpressCheckout')
-            && Db::getInstance()->execute('DROP TABLE `'._DB_PREFIX_.'sharecart_links`');
+            && Db::getInstance()->execute('DROP TABLE `'._DB_PREFIX_.'sharecart_links`')
+            && $this->unregisterHook('actionFrontControllerSetMedia')
+            && $this->unregisterHook('displayHeader');
     }
 
     public function hookDisplayExpressCheckout($params)
     {
+        Db::getInstance()->execute(
+            'DELETE FROM '._DB_PREFIX_.'sharecart_links WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)'
+        );
+
         // Paimam esamo krepselio id
         $cartId = (int) $this->context->cart->id;
 
@@ -64,15 +72,27 @@ class KlipShop extends Module
             $token = $existingToken;
         }
 
-        Db::getInstance()->execute(
-            'DELETE FROM '._DB_PREFIX_.'sharecart_links WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)'
-        );
 
         // priskiriam linka templeitui
         $link = $this->context->link->getModuleLink('klipshop', 'cart', ['token' => $token]);
         $this->context->smarty->assign('share_cart_link', $link);
 
         return $this->display(__FILE__, 'views/templates/cart.tpl');
+    }
+
+    public function hookDisplayHeader($params)
+    {
+        if (Tools::getValue('cart_error')) {
+
+            $error_msg = 'Cart not found or expired.';
+            $this->context->smarty->assign('error', $error_msg);
+        }
+        return $this->display(__FILE__, 'views/templates/error.tpl');
+    }
+    public function hookActionFrontControllerSetMedia(array $params)
+    {
+        $this->context->controller->addCss($this->getPathUri() . 'views/css/main.css');
+        $this->context->controller->addJs($this->getPathUri() . 'views/js/main.js');
     }
 
 }
