@@ -91,8 +91,23 @@ class KlipShop extends Module
     }
     public function hookActionFrontControllerSetMedia(array $params)
     {
-        $this->context->controller->addCss($this->getPathUri() . 'views/css/main.css');
-        $this->context->controller->addJs($this->getPathUri() . 'views/js/main.js');
+
+        if ($this->context->controller->php_self !== 'cart') {
+            return;
+        }
+        $this->context->controller->registerStylesheet(
+            'klipshop-custom-css',
+            'modules/'.$this->name.'/views/css/main.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+        $this->context->controller->registerJavascript(
+            'klipshop-custom-js',
+            'modules/'.$this->name.'/views/js/main.js',
+            [
+                'position' => 'bottom',
+                'priority' => 150,
+            ]
+        );
     }
 
 }
