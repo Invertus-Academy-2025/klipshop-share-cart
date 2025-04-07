@@ -83,16 +83,42 @@ class KlipShop extends Module
     public function hookDisplayHeader($params)
     {
         if (Tools::getValue('cart_error')) {
-
             $error_msg = 'Cart not found or expired.';
             $this->context->smarty->assign('error', $error_msg);
         }
         return $this->display(__FILE__, 'views/templates/error.tpl');
     }
+
     public function hookActionFrontControllerSetMedia(array $params)
     {
-        $this->context->controller->addCss($this->getPathUri() . 'views/css/main.css');
-        $this->context->controller->addJs($this->getPathUri() . 'views/js/main.js');
+
+        if(Tools::getValue('cart_error')) {
+            $this->context->controller->registerJavascript(
+                'klipshop-custom-js-error',
+                'modules/'.$this->name.'/views/js/error.js',
+                [
+                    'position' => 'bottom',
+                    'priority' => 150,
+                ]
+            );
+        }
+
+        if ($this->context->controller->php_self !== 'cart') {
+            return;
+        }
+        $this->context->controller->registerStylesheet(
+            'klipshop-custom-css',
+            'modules/'.$this->name.'/views/css/main.css',
+            ['media' => 'all', 'priority' => 150]
+        );
+        $this->context->controller->registerJavascript(
+            'klipshop-custom-js',
+            'modules/'.$this->name.'/views/js/main.js',
+            [
+                'position' => 'bottom',
+                'priority' => 150,
+            ]
+        );
     }
 
 }
